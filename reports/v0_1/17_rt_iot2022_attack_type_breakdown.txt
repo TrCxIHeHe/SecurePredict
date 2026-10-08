@@ -1,0 +1,18 @@
+SECUREPREDICT V1.0.3 - RT-IoT2022 PER-ATTACK-TYPE BREAKDOWN (FROZEN MODEL, TEST SPLIT)
+====================================================================================================
+               Attack_type                  kind  samples  share_of_test_%  correct  correct_rate  miss_rate
+             DOS_SYN_Hping Attack (want: Attack)    18866          76.6973    18866        1.0000     0.0000
+               Thing_Speak Normal (want: Normal)     1623           6.5981     1613        0.9938     0.0062
+            ARP_poisioning Attack (want: Attack)     1587           6.4517     1565        0.9861     0.0139
+              MQTT_Publish Normal (want: Normal)      815           3.3133      815        1.0000     0.0000
+             NMAP_UDP_SCAN Attack (want: Attack)      487           1.9798      486        0.9979     0.0021
+       NMAP_XMAS_TREE_SCAN Attack (want: Attack)      409           1.6627      409        1.0000     0.0000
+         NMAP_OS_DETECTION Attack (want: Attack)      404           1.6424      404        1.0000     0.0000
+             NMAP_TCP_scan Attack (want: Attack)      229           0.9310      229        1.0000     0.0000
+            DDOS_Slowloris Attack (want: Attack)      116           0.4716      114        0.9828     0.0172
+                Wipro_bulb Normal (want: Normal)       48           0.1951       48        1.0000     0.0000
+Metasploit_Brute_Force_SSH Attack (want: Attack)        9           0.0366        9        1.0000     0.0000
+             NMAP_FIN_SCAN Attack (want: Attack)        5           0.0203        5        1.0000     0.0000
+
+Read: correct_rate = fraction of that original class the binary detector labelled correctly.
+Small classes have wide uncertainty; see 'samples'.

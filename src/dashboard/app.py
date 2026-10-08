@@ -25,6 +25,8 @@ if str(SRC_DIR) not in sys.path:
 from inference import (  # noqa: E402
     AI4I_EARLY_WARNING_THRESHOLD,
     AI4I_PRIMARY_THRESHOLD,
+    explain_ai4i,
+    explain_rt_iot2022,
     get_expected_features,
     load_models,
     predict_ai4i,
@@ -53,24 +55,26 @@ AI4I_FEATURES = [
 ]
 
 
-MODEL_RESULTS = {
-    "AI4I 2020": {
-        "ROC-AUC": 0.9756577,
-        "PR-AUC": 0.8301440,
-        "F1": 0.7878788,
-        "Recall": 0.7647059,
-        "Precision": 0.8125,
-        "Test rows": 2000,
-    },
-    "RT-IoT2022": {
-        "ROC-AUC": 1.0000,
-        "PR-AUC": 1.0000,
-        "F1": 0.9992,
-        "Recall": 0.9989,
-        "Precision": 0.9995,
-        "Test rows": 24598,
-    },
-}
+def _load_model_results() -> dict:
+    """Read frozen test metrics from the saved V0.5 report tables (single source of truth)."""
+    ai = pd.read_csv(TABLE_DIR / "12_ai4i_final_test_results.csv")
+    ai = ai[ai["operating_mode"] == "balanced_primary"].iloc[0]
+    rt = pd.read_csv(TABLE_DIR / "13_rt_iot2022_final_test_results.csv").iloc[0]
+    return {
+        "AI4I 2020": {
+            "ROC-AUC": ai["roc_auc"], "PR-AUC": ai["pr_auc"], "F1": ai["f1"],
+            "Recall": ai["recall"], "Precision": ai["precision"],
+            "Test rows": int(ai["tn"] + ai["fp"] + ai["fn"] + ai["tp"]),
+        },
+        "RT-IoT2022": {
+            "ROC-AUC": rt["roc_auc"], "PR-AUC": rt["pr_auc"], "F1": rt["f1"],
+            "Recall": rt["recall"], "Precision": rt["precision"],
+            "Test rows": int(rt["tn"] + rt["fp"] + rt["fn"] + rt["tp"]),
+        },
+    }
+
+
+MODEL_RESULTS = _load_model_results()
 
 
 @st.cache_resource
@@ -87,6 +91,21 @@ def model_schemas():
 def probability_bar(label: str, probability: float) -> None:
     st.metric(label, f"{probability * 100:.2f}%")
     st.progress(max(0.0, min(1.0, probability)))
+
+
+def render_input_explanation(explanation: dict, title: str) -> None:
+    """Show SHAP contributions for the CURRENT input."""
+    st.subheader(title)
+    unit = explanation["output_space"]
+    df = pd.DataFrame(explanation["contributions"]).rename(
+        columns={"feature": "Feature", "value": "Input value", "shap": "Contribution"}
+    )
+    st.caption(
+        f"Contributions are in {unit}. Positive values push toward "
+        "failure/attack; negative values push away."
+    )
+    st.bar_chart(df.set_index("Feature")["Contribution"])
+    st.dataframe(df, hide_index=True, width="stretch")
 
 
 def render_header():
@@ -239,6 +258,13 @@ def render_machine_health():
         "untouched test evaluation."
     )
 
+    try:
+        render_input_explanation(
+            explain_ai4i(sample), "Why this prediction? (SHAP for your input)"
+        )
+    except Exception as exc:
+        st.warning(f"Could not compute explanation: {exc}")
+
 
 def render_network_security():
     st.header(" Network Security")
@@ -327,13 +353,22 @@ def render_network_security():
             hide_index=True,
         )
 
+    try:
+        render_input_explanation(
+            explain_rt_iot2022(row_df), "Why this prediction? (SHAP for this flow)"
+        )
+    except Exception as exc:
+        st.warning(f"Could not compute explanation: {exc}")
+
 
 def render_explainability():
     st.header("🧠 Explainability")
 
     st.write(
         "V0.6 generated SHAP explanations using validation data only. The images "
-        "below are representative explanations from the completed analysis."
+        "below are representative explanations from the completed analysis. "
+        "For an explanation of YOUR input, use the Machine Health or Network "
+        "Security page."
     )
 
     ai_global = FIG_DIR / "ai4i_shap_global_importance.png"
@@ -401,7 +436,7 @@ def render_model_performance():
         with col:
             st.subheader(name)
             for metric in ["ROC-AUC", "PR-AUC", "F1", "Recall", "Precision"]:
-                st.metric(metric, f"{metrics[metric]:.4f}")
+                st.metric(metric, f"{metrics[metric]:.6f}")
             st.caption(f"Untouched test rows: {metrics['Test rows']:,}")
 
     st.subheader("AI4I operating thresholds")
@@ -481,7 +516,7 @@ def main():
         )
 
         st.divider()
-        st.caption("V0.8 Dashboard")
+        st.caption("V1.0 Dashboard")
         st.caption("Models: V0.5 frozen artifacts")
         st.caption("Inference: V0.7")
 

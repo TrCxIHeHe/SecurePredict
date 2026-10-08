@@ -14,6 +14,8 @@ from typing import Any
 import joblib
 import pandas as pd
 
+from .validation import validate_ai4i_row, validate_rt_iot_row
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 MODEL_DIR = PROJECT_ROOT / "models" / "final"
@@ -117,6 +119,7 @@ def predict_ai4i(data: dict[str, Any] | pd.DataFrame) -> dict[str, Any]:
     row = _validate_columns(
         _to_single_row(data), expected, "AI4I"
     )
+    validate_ai4i_row(row)
 
     failure_probability = float(ai4i_model.predict_proba(row)[0, 1])
 
@@ -153,6 +156,7 @@ def predict_rt_iot2022(
     row = _validate_columns(
         _to_single_row(data), expected, "RT-IoT2022"
     )
+    validate_rt_iot_row(row)
 
     attack_probability = float(rt_iot_model.predict_proba(row)[0, 1])
     attack = attack_probability >= 0.50
@@ -171,3 +175,35 @@ def predict_rt_iot2022(
         "classification": "ATTACK" if attack else "NORMAL",
         "risk_level": risk_level,
     }
+
+
+def _validated_ai4i_row(data):
+    ai4i_model, _ = load_models()
+    row = _validate_columns(
+        _to_single_row(data), _model_feature_names(ai4i_model), "AI4I"
+    )
+    validate_ai4i_row(row)
+    return row
+
+
+def _validated_rt_row(data):
+    _, rt_model = load_models()
+    row = _validate_columns(
+        _to_single_row(data), _model_feature_names(rt_model), "RT-IoT2022"
+    )
+    validate_rt_iot_row(row)
+    return row
+
+
+def explain_ai4i(data: dict[str, Any] | pd.DataFrame, top_k: int = 8) -> dict[str, Any]:
+    """SHAP contributions (log-odds) for THIS machine reading."""
+    from .explain import explain_row
+
+    return explain_row("ai4i", _validated_ai4i_row(data), top_k)
+
+
+def explain_rt_iot2022(data: dict[str, Any] | pd.DataFrame, top_k: int = 8) -> dict[str, Any]:
+    """SHAP contributions (probability) for THIS network flow."""
+    from .explain import explain_row
+
+    return explain_row("rt_iot2022", _validated_rt_row(data), top_k)

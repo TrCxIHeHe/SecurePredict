@@ -61,13 +61,11 @@ Save the terminal output or copy it into the project report later. We want to in
 - duplicate rows
 - class distributions
 
-## 5. Launch the placeholder dashboard
+## 5. Launch the dashboard
 
 ```powershell
-streamlit run app/app.py
+streamlit run src\dashboard\app.py
 ```
-
-This is only the V0.1 shell. The actual models will be wired in after the audit.
 
 ## Next milestone
 

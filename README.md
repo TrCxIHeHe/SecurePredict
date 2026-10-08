@@ -97,8 +97,8 @@ Numeric-flow-only model
 
 | Metric | Held-out test |
 |---|---:|
-| ROC-AUC | 1.0000 |
-| PR-AUC | 1.0000 |
+| ROC-AUC | 0.999974 |
+| PR-AUC | 0.999997 |
 | F1 | 0.9992 |
 | Recall | 0.9989 |
 | Precision | 0.9995 |
@@ -126,12 +126,17 @@ Pages:
 - About
 
 ### V0.9 — Automated tests
-Current test suite validates inference behavior and model artifact loading.
+### V1.0 - Hardening
+- Inference rejects NaN, Inf, invalid `Type`, non-numeric and out-of-range values.
+- Dashboard explains the user's own input with SHAP (not just static examples).
+- Metrics shown in the dashboard are read from the saved report tables.
+- AI4I bootstrap confidence intervals (`16_ai4i_uncertainty.txt`) and RT-IoT2022 per-attack-type breakdown (`17_*`).
+- GitHub Actions CI, provenance document, stale V0.1 shell removed.
 
-Expected result:
+Current test suite (inference, validation, explanations, dashboard smoke test):
 
 ```text
-10 passed
+33+ passed
 ```
 
 ---
@@ -140,36 +145,19 @@ Expected result:
 
 ```text
 SecurePredict/
+├── .github/workflows/ci.yml        # pytest on every push / PR, docker build
 ├── src/
-│   ├── data/
-│   ├── evaluation/
-│   ├── explainability/
-│   ├── features/
+│   ├── data/                       # one script per experiment stage (V0.1-V1.0.4)
 │   ├── inference/
-│   │   ├── __init__.py
-│   │   ├── predictors.py
-│   │   └── smoke_test.py
-│   ├── models/
-│   └── dashboard/
-│       └── app.py
-│
-├── tests/
-│   └── test_inference.py
-│
-├── models/
-│   └── final/
-│       ├── ai4i_xgboost_final.joblib
-│       └── rt_iot2022_random_forest_final.joblib
-│
-├── reports/
-│   └── v0_1/
-│       ├── figures/
-│       └── tables/
-│
-├── requirements.txt
-├── Dockerfile
-├── .dockerignore
-├── .gitignore
+│   │   ├── predictors.py           # predict_* / explain_*
+│   │   ├── validation.py           # NaN / Inf / type / range checks
+│   │   └── explain.py              # per-input SHAP
+│   └── dashboard/app.py            # Streamlit app
+├── tests/                          # inference, validation, explain, dashboard
+├── models/{final,tuned,baseline,ablation,xgboost_baseline}/
+├── reports/v0_1/{tables,figures}/  # numbered reports 02-17
+├── EXPERIMENT_PROVENANCE.md        # artifact-level audit trail
+├── requirements.txt  Dockerfile  .dockerignore  .gitignore
 └── README.md
 ```
 
@@ -324,5 +312,5 @@ drift / performance monitoring
 
 ## Resume-ready summary
 
-> Built an explainable Industrial IoT monitoring system combining predictive maintenance and network-flow threat detection using XGBoost and Random Forest; performed leakage-aware data auditing, validation-based threshold optimization, feature ablation, SHAP explainability, reusable inference, automated testing, and Streamlit deployment architecture.
+> Built an explainable Industrial IoT monitoring system combining predictive maintenance and network-flow threat detection using XGBoost and Random Forest; performed leakage-aware data auditing, validation-based threshold optimization, feature ablation, SHAP explainability, reusable inference, automated testing, and Streamlit application.
 

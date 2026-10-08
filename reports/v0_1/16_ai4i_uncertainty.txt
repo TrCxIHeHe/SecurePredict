@@ -1,0 +1,18 @@
+SECUREPREDICT V1.0.3 - AI4I UNCERTAINTY (FROZEN THRESHOLDS, NO RE-TUNING)
+================================================================================
+Test rows: 2,000 | failures: 68 | bootstrap resamples: 5000
+
+primary_0.77
+  precision  0.8125   95% CI [0.7077, 0.9062]
+  recall     0.7647   95% CI [0.6610, 0.8621]
+  f1         0.7879   95% CI [0.7027, 0.8593]
+
+early_warning_0.07
+  precision  0.3750   95% CI [0.3046, 0.4524]
+  recall     0.9265   95% CI [0.8600, 0.9846]
+  f1         0.5339   95% CI [0.4564, 0.6117]
+
+roc_auc    0.9757   95% CI [0.9563, 0.9913]
+pr_auc     0.8301   95% CI [0.7485, 0.9001]
+
+Note: intervals reflect test-sample size only (68 failures); thresholds stay frozen.
