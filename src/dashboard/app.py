@@ -22,7 +22,7 @@ if str(PROJECT_ROOT) not in sys.path:
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from inference import (  # noqa: E402
+from src.inference import (  # noqa: E402
     AI4I_EARLY_WARNING_THRESHOLD,
     AI4I_PRIMARY_THRESHOLD,
     explain_ai4i,
