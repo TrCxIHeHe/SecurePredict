@@ -1,0 +1,9 @@
+feature,shap_value,abs_shap_value
+numeric__Torque,4.3702984,4.3702984
+numeric__Rotational speed,1.3598148,1.3598148
+numeric__Air temperature,1.0976709,1.0976709
+numeric__Tool wear,0.21088187,0.21088187
+categorical__Type_L,0.18571699,0.18571699
+numeric__Process temperature,0.18278447,0.18278447
+categorical__Type_H,0.021852624,0.021852624
+categorical__Type_M,0.00028051785,0.00028051785

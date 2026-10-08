@@ -1,0 +1,21 @@
+{
+  "model": "XGBoost",
+  "n_estimators": 300,
+  "max_depth": 8,
+  "learning_rate": 0.08,
+  "min_child_weight": 4,
+  "subsample": 1.0,
+  "colsample_bytree": 0.9,
+  "gamma": 0.5,
+  "reg_alpha": 0.5,
+  "reg_lambda": 1.0,
+  "random_state": 42,
+  "scale_pos_weight": 28.52029520295203,
+  "primary_threshold": 0.77,
+  "early_warning_threshold": 0.07,
+  "fit_rows": 8000,
+  "test_rows": 2000,
+  "test_failure_count": 68,
+  "model_path": "C:\\Users\\triam\\Downloads\\SecurePredict_v0_1\\SecurePredict_v0_1\\models\\final\\ai4i_xgboost_final.joblib",
+  "selection_note": "Hyperparameters selected using TRAIN-only CV; primary threshold selected on VALIDATION."
+}

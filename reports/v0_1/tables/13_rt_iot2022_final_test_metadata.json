@@ -1,0 +1,23 @@
+{
+  "model": "RandomForestClassifier",
+  "n_estimators": 200,
+  "class_weight": "balanced_subsample",
+  "min_samples_leaf": 2,
+  "random_state": 42,
+  "feature_policy": "numeric_flow_only",
+  "removed_constant_feature": "bwd_URG_flag_count",
+  "removed_categorical_features": [
+    "proto",
+    "service"
+  ],
+  "removed_port_features": [
+    "id.orig_p",
+    "id.resp_p"
+  ],
+  "n_numeric_features": 78,
+  "fit_rows": 98391,
+  "test_rows": 24598,
+  "threshold": 0.5,
+  "model_path": "C:\\Users\\triam\\Downloads\\SecurePredict_v0_1\\SecurePredict_v0_1\\models\\final\\rt_iot2022_random_forest_final.joblib",
+  "selection_note": "Model family and feature set selected from TRAIN/VALIDATION experiments; test used only for final evaluation."
+}

@@ -1,0 +1,39 @@
+SECUREPREDICT V0.5 - FINAL RT-IoT2022 TEST EVALUATION
+==========================================================================================
+FINAL MODEL: Random Forest (numeric-flow-only)
+FIT DATA: TRAIN + VALIDATION
+EVALUATION DATA: UNTOUCHED TEST
+
+Numeric features: 78
+Final fitting rows: 98,391
+Test rows: 24,598
+Test attack rows: 22,112
+
+FEATURE POLICY
+--------------------------------------------------
+Removed constant feature: bwd_URG_flag_count
+Removed categorical features: proto, service
+Removed port features: id.orig_p, id.resp_p
+
+FINAL TEST PERFORMANCE
+--------------------------------------------------
+Threshold: 0.50
+Accuracy: 0.998577
+Balanced Accuracy: 0.997423
+Precision: 0.999547
+Recall: 0.998869
+F1: 0.999208
+ROC-AUC: 0.999974
+PR-AUC: 0.999997
+Confusion matrix: TN=2476 FP=10 FN=25 TP=22087
+
+OUTPUTS
+--------------------------------------------------
+Final model: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\models\final\rt_iot2022_random_forest_final.joblib
+Results: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\reports\v0_1\tables\13_rt_iot2022_final_test_results.csv
+Predictions: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\reports\v0_1\tables\13_rt_iot2022_test_predictions.csv
+Metadata: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\reports\v0_1\tables\13_rt_iot2022_final_test_metadata.json
+
+IMPORTANT:
+This test evaluation was performed after model/feature selection.
+The test split was not used for tuning or model selection.

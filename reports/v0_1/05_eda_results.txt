@@ -1,0 +1,71 @@
+SECUREPREDICT V0.1 - EXPLORATORY DATA ANALYSIS
+==========================================================================================
+EDA is performed on the TRAIN split only.
+Validation and test data remain untouched for model selection.
+
+
+==========================================================================================
+AI4I 2020 - TRAINING-SPLIT EDA
+==========================================================================================
+Training rows: 6,400
+Features: 6
+Failure rate: 3.391%
+
+AI4I target correlations with numeric features:
+  Torque: 0.1942
+  Air temperature: 0.1034
+  Tool wear: 0.0863
+  Process temperature: 0.0523
+  Rotational speed: -0.0480
+
+AI4I failure rate by machine type:
+  L: 3.853% (149/3867)
+  M: 2.821% (54/1914)
+  H: 2.262% (14/619)
+
+==========================================================================================
+RT-IoT2022 - TRAINING-SPLIT EDA
+==========================================================================================
+Training rows: 78,712
+Processed columns: 89
+Attack rate: 89.895%
+Normal rate: 10.105%
+Numeric features observed: 81
+
+Top numeric feature correlations with binary Attack target:
+  fwd_init_window_size: -0.6315
+  active.min: -0.6151
+  fwd_pkts_payload.min: 0.6097
+  fwd_pkts_payload.avg: 0.5160
+  bwd_init_window_size: -0.5078
+  idle.min: -0.4618
+  idle.avg: -0.4549
+  flow_iat.max: -0.4515
+  fwd_iat.max: -0.4511
+  idle.max: -0.4467
+  flow_iat.std: -0.4409
+  fwd_iat.std: -0.4306
+  fwd_subflow_pkts: -0.3903
+  fwd_header_size_max: -0.3746
+  flow_iat.avg: -0.3719
+
+RT-IoT2022 attack-type distribution:
+  DOS_SYN_Hping: 60,605 (76.996%)
+  Thing_Speak: 5,103 (6.483%)
+  ARP_poisioning: 4,913 (6.242%)
+  MQTT_Publish: 2,674 (3.397%)
+  NMAP_UDP_SCAN: 1,685 (2.141%)
+  NMAP_XMAS_TREE_SCAN: 1,292 (1.641%)
+  NMAP_OS_DETECTION: 1,285 (1.633%)
+  NMAP_TCP_scan: 599 (0.761%)
+  DDOS_Slowloris: 336 (0.427%)
+  Wipro_bulb: 177 (0.225%)
+  NMAP_FIN_SCAN: 22 (0.028%)
+  Metasploit_Brute_Force_SSH: 21 (0.027%)
+
+==========================================================================================
+EDA COMPLETE
+==========================================================================================
+Report: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\reports\v0_1\05_eda_results.txt
+Figures: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\reports\v0_1\figures
+Tables: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\reports\v0_1\tables

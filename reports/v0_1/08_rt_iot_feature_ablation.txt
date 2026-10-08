@@ -1,0 +1,69 @@
+SECUREPREDICT V0.2 - RT-IoT2022 FEATURE ABLATION
+==========================================================================================
+Controlled feature-family ablation using the validation split.
+Test set remains untouched.
+
+Training rows: 78,712
+Validation rows: 19,679
+
+FULL
+--------------------------------------------------
+Features before encoding: 82
+Accuracy: 0.998882
+Balanced accuracy: 0.996701
+Precision: 0.999322
+Recall: 0.999435
+F1: 0.999378
+ROC-AUC: 0.999979
+PR-AUC: 0.999998
+Confusion matrix: TN=1977 FP=12 FN=10 TP=17680
+Fit time (sec): 4.523
+
+NO_CATEGORICAL
+--------------------------------------------------
+Features before encoding: 80
+Accuracy: 0.998679
+Balanced accuracy: 0.996141
+Precision: 0.999209
+Recall: 0.999322
+F1: 0.999265
+ROC-AUC: 0.999975
+PR-AUC: 0.999997
+Confusion matrix: TN=1975 FP=14 FN=12 TP=17678
+Fit time (sec): 2.375
+
+NO_PORTS
+--------------------------------------------------
+Features before encoding: 80
+Accuracy: 0.998628
+Balanced accuracy: 0.996336
+Precision: 0.999265
+Recall: 0.999209
+F1: 0.999237
+ROC-AUC: 0.999974
+PR-AUC: 0.999997
+Confusion matrix: TN=1976 FP=13 FN=14 TP=17676
+Fit time (sec): 4.504
+
+NUMERIC_ONLY
+--------------------------------------------------
+Features before encoding: 80
+Accuracy: 0.998679
+Balanced accuracy: 0.996141
+Precision: 0.999209
+Recall: 0.999322
+F1: 0.999265
+ROC-AUC: 0.999975
+PR-AUC: 0.999997
+Confusion matrix: TN=1975 FP=14 FN=12 TP=17678
+Fit time (sec): 2.362
+
+==========================================================================================
+INTERPRETATION GUIDE
+==========================================================================================
+FULL is the reference.
+NO_CATEGORICAL tests whether proto/service are driving the performance.
+NO_PORTS tests whether endpoint port information is driving the performance.
+NUMERIC_ONLY tests a purely numeric flow-feature representation.
+
+No test-set result is used in this experiment.

@@ -1,0 +1,68 @@
+SECUREPREDICT V0.6 - SHAP EXPLAINABILITY
+==========================================================================================
+Global and local explanations use validation data only.
+The final test set is not used for explanations.
+
+==========================================================================================
+AI4I 2020 - SHAP EXPLAINABILITY
+==========================================================================================
+Validation rows explained: 800
+Selected local example probability: 0.999410
+Selected local example actual failure: 1
+
+Top global features:
+  numeric__Torque: 2.167856
+  numeric__Tool wear: 1.879815
+  numeric__Rotational speed: 1.379086
+  numeric__Air temperature: 0.931694
+  numeric__Process temperature: 0.471063
+  categorical__Type_L: 0.103056
+  categorical__Type_M: 0.043593
+  categorical__Type_H: 0.034781
+
+Top local contributors:
+  numeric__Torque: 4.370298 (toward failure)
+  numeric__Rotational speed: 1.359815 (toward failure)
+  numeric__Air temperature: 1.097671 (toward failure)
+  numeric__Tool wear: 0.210882 (toward failure)
+  categorical__Type_L: 0.185717 (toward failure)
+  numeric__Process temperature: 0.182784 (toward failure)
+  categorical__Type_H: 0.021853 (toward failure)
+  categorical__Type_M: 0.000281 (toward failure)
+
+==========================================================================================
+RT-IoT2022 - SHAP EXPLAINABILITY
+==========================================================================================
+Validation rows explained: 800
+Selected local example attack probability: 1.000000
+Selected local example actual binary target: Attack
+
+Top global features:
+  flow_iat.min: 0.103868
+  flow_iat.avg: 0.037340
+  fwd_iat.min: 0.032922
+  active.min: 0.030230
+  flow_duration: 0.029261
+  active.max: 0.026679
+  flow_iat.tot: 0.023884
+  flow_iat.max: 0.022728
+  active.avg: 0.014876
+  fwd_pkts_payload.min: 0.014194
+
+Top local contributors:
+  flow_iat.min: 0.156363 (toward attack)
+  fwd_iat.min: 0.087278 (toward attack)
+  fwd_pkts_payload.min: 0.054329 (toward attack)
+  flow_pkts_payload.min: 0.050161 (toward attack)
+  fwd_iat.avg: 0.041020 (toward attack)
+  fwd_iat.max: 0.038204 (toward attack)
+  fwd_iat.tot: 0.033461 (toward attack)
+  flow_iat.avg: -0.027266 (away from attack)
+  bwd_pkts_payload.std: 0.020772 (toward attack)
+  fwd_pkts_payload.avg: 0.018932 (toward attack)
+
+==========================================================================================
+SHAP EXPLAINABILITY COMPLETE
+==========================================================================================
+Tables: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\reports\v0_1\tables
+Figures: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\reports\v0_1\figures

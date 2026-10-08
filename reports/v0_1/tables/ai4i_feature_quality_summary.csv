@@ -1,0 +1,7 @@
+feature,dtype,n_unique,missing_count,missing_pct,most_common_value,most_common_count,dominant_pct,is_constant,is_near_constant
+Type,object,3,0,0.0,L,3867,60.421875,False,False
+Air temperature,float64,93,0,0.0,300.7,185,2.890625,False,False
+Process temperature,float64,82,0,0.0,310.6,192,3.0,False,False
+Rotational speed,int64,853,0,0.0,1452,32,0.5,False,False
+Torque,float64,548,0,0.0,38.2,35,0.546875,False,False
+Tool wear,int64,244,0,0.0,0,77,1.203125,False,False

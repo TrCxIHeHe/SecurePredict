@@ -1,0 +1,52 @@
+SECUREPREDICT V0.3 - XGBOOST BASELINE EXPERIMENTS
+==========================================================================================
+Validation-only model comparison.
+Final test sets remain untouched.
+No hyperparameter tuning in this experiment.
+
+
+==========================================================================================
+AI4I 2020 - XGBOOST BASELINE
+==========================================================================================
+Training rows: 6,400
+Validation rows: 1,600
+Positive failures: 217
+Negative normal rows: 6,183
+scale_pos_weight: 28.493088
+Hyperparameter tuning: NO
+
+accuracy: 0.981250
+balanced_accuracy: 0.838388
+precision: 0.740000
+recall: 0.685185
+f1: 0.711538
+roc_auc: 0.968108
+pr_auc: 0.751299
+fit_seconds: 0.675285
+confusion_matrix: TN=1533 FP=13 FN=17 TP=37
+
+==========================================================================================
+RT-IoT2022 - XGBOOST BINARY INTRUSION BASELINE
+==========================================================================================
+Training rows: 78,712
+Validation rows: 19,679
+Target: Normal=0, Attack=1
+Dropped constant feature: bwd_URG_flag_count
+scale_pos_weight: 1.0
+Hyperparameter tuning: NO
+
+accuracy: 0.998780
+balanced_accuracy: 0.995975
+precision: 0.999152
+recall: 0.999491
+f1: 0.999322
+roc_auc: 0.999986
+pr_auc: 0.999998
+fit_seconds: 3.222569
+confusion_matrix: TN=1974 FP=15 FN=9 TP=17681
+
+==========================================================================================
+XGBOOST BASELINE EXPERIMENT COMPLETE
+==========================================================================================
+Metrics: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\reports\v0_1\tables\09_xgboost_baseline_results.csv
+Models: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\models\xgboost_baseline

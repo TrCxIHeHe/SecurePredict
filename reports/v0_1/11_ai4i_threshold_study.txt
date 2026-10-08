@@ -1,0 +1,52 @@
+SECUREPREDICT V0.4.1 - AI4I VALIDATION + THRESHOLD STUDY
+==========================================================================================
+Validation split only.
+Final test split remains untouched.
+
+DEFAULT THRESHOLD = 0.50
+--------------------------------------------------
+XGBoost_Baseline:
+  Precision: 0.740000
+  Recall: 0.685185
+  F1: 0.711538
+  ROC-AUC: 0.968108
+  PR-AUC: 0.751299
+
+XGBoost_Tuned:
+  Precision: 0.611940
+  Recall: 0.759259
+  F1: 0.677686
+  ROC-AUC: 0.977014
+  PR-AUC: 0.774671
+
+==========================================================================================
+TUNED MODEL THRESHOLD STUDY
+==========================================================================================
+
+Best F1 threshold:
+  threshold = 0.77
+  precision = 0.818182
+  recall = 0.666667
+  F1 = 0.734694
+
+Highest recall with precision >= 0.30:
+  threshold = 0.07
+  precision = 0.320513
+  recall = 0.925926
+  F1 = 0.476190
+
+Highest recall with F1 >= 0.50:
+  threshold = 0.10
+  precision = 0.374046
+  recall = 0.907407
+  F1 = 0.529730
+
+==========================================================================================
+OUTPUTS
+==========================================================================================
+Comparison: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\reports\v0_1\tables\11_ai4i_xgboost_validation_comparison.csv
+Threshold sweep: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\reports\v0_1\tables\11_ai4i_tuned_threshold_sweep.csv
+
+NEXT STEP:
+Review the threshold trade-off, freeze the operating threshold,
+then perform one final untouched test-set evaluation.

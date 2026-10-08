@@ -1,0 +1,43 @@
+SECUREPREDICT V0.5 - FINAL AI4I TEST EVALUATION
+==========================================================================================
+FINAL MODEL: Tuned XGBoost
+FIT DATA: TRAIN + VALIDATION
+EVALUATION DATA: UNTOUCHED TEST
+
+Final fitting rows: 8,000
+Test rows: 2,000
+Test failures: 68
+scale_pos_weight: 28.520295
+
+FROZEN PRIMARY OPERATING MODE
+--------------------------------------------------
+Threshold: 0.77
+Accuracy: 0.986000
+Balanced Accuracy: 0.879247
+Precision: 0.812500
+Recall: 0.764706
+F1: 0.787879
+ROC-AUC: 0.975658
+PR-AUC: 0.830144
+Confusion matrix: TN=1920 FP=12 FN=16 TP=52
+
+SECONDARY EARLY-WARNING MODE
+--------------------------------------------------
+Threshold: 0.07
+Accuracy: 0.945000
+Balanced Accuracy: 0.936061
+Precision: 0.375000
+Recall: 0.926471
+F1: 0.533898
+Confusion matrix: TN=1827 FP=105 FN=5 TP=63
+
+OUTPUTS
+--------------------------------------------------
+Final model: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\models\final\ai4i_xgboost_final.joblib
+Results: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\reports\v0_1\tables\12_ai4i_final_test_results.csv
+Predictions: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\reports\v0_1\tables\12_ai4i_test_predictions.csv
+Metadata: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\reports\v0_1\tables\12_ai4i_final_test_metadata.json
+
+IMPORTANT:
+This test evaluation was performed after model and threshold
+selection and is the first use of the untouched test split.

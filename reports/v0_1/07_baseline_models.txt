@@ -1,0 +1,17 @@
+SECUREPREDICT V0.1 - BASELINE ML EXPERIMENTS
+==========================================================================================
+Fit: TRAIN only | Evaluation: VALIDATION only | TEST: untouched
+
+AI4I 2020
+------------------------------------------------------------------------------------------
+Dummy_MostFrequent: Accuracy=0.9663, BalancedAcc=0.5000, Precision=0.0000, Recall=0.0000, F1=0.0000, ROC-AUC=0.5000, PR-AUC=0.0338
+LogisticRegression_Balanced: Accuracy=0.8231, BalancedAcc=0.8370, Precision=0.1433, Recall=0.8519, F1=0.2453, ROC-AUC=0.8927, PR-AUC=0.4197
+RandomForest_Balanced: Accuracy=0.9806, BalancedAcc=0.7576, Precision=0.8485, Recall=0.5185, F1=0.6437, ROC-AUC=0.9597, PR-AUC=0.6928
+
+RT-IoT2022
+------------------------------------------------------------------------------------------
+Dummy_MostFrequent: Accuracy=0.8989, BalancedAcc=0.5000, Precision=0.8989, Recall=1.0000, F1=0.9468, ROC-AUC=0.5000, PR-AUC=0.8989, NormalRecall=0.0000
+LogisticRegression_Balanced: Accuracy=0.9733, BalancedAcc=0.9820, Precision=0.9992, Recall=0.9711, F1=0.9849, ROC-AUC=0.9971, PR-AUC=0.9995, NormalRecall=0.9930
+RandomForest_Balanced: Accuracy=0.9988, BalancedAcc=0.9967, Precision=0.9993, Recall=0.9994, F1=0.9993, ROC-AUC=1.0000, PR-AUC=1.0000, NormalRecall=0.9940
+
+Test set was not used in this experiment.

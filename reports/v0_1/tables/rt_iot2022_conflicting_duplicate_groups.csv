@@ -1,0 +1,7 @@
+group_id,unique_labels,rows_in_group,labels
+1,2,17,"ARP_poisioning, NMAP_UDP_SCAN"
+2,2,4,"ARP_poisioning, Thing_Speak"
+3,2,4,"ARP_poisioning, Thing_Speak"
+4,3,75,"ARP_poisioning, DDOS_Slowloris, Thing_Speak"
+5,2,24,"ARP_poisioning, Thing_Speak"
+6,2,4,"Metasploit_Brute_Force_SSH, NMAP_UDP_SCAN"

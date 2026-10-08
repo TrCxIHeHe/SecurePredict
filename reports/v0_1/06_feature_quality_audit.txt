@@ -1,0 +1,43 @@
+SECUREPREDICT V0.1.1 - FEATURE QUALITY AUDIT
+==========================================================================================
+Audit performed on TRAIN splits only.
+No modeling datasets are modified by this script.
+
+==========================================================================================
+AI4I 2020 - FEATURE QUALITY AUDIT
+==========================================================================================
+Training rows: 6,400
+Candidate features: 6
+Constant features: 0
+Near-constant features (>=99.5% one value): 0
+Constant features: None
+Near-constant features: None
+
+
+==========================================================================================
+RT-IoT2022 - FEATURE QUALITY AUDIT
+==========================================================================================
+Training rows: 78,712
+Candidate feature columns: 83
+Numeric features: 81
+Categorical features: 2
+Constant numeric features: 1
+Near-constant numeric features (>=99.5% one value): 5
+Constant numeric features: bwd_URG_flag_count
+Near-constant numeric features: flow_CWR_flag_count, flow_ECE_flag_count, fwd_bulk_bytes, fwd_bulk_packets, fwd_bulk_rate
+
+Categorical feature cardinality:
+  service: 10 unique (0.013% of rows)
+  proto: 3 unique (0.004% of rows)
+
+High-cardinality categorical candidates for review:
+  None
+
+High-uniqueness numeric candidates for review (>=90% unique):
+  None
+
+
+==========================================================================================
+FEATURE QUALITY AUDIT COMPLETE
+==========================================================================================
+Tables: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\reports\v0_1\tables

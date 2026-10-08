@@ -1,0 +1,35 @@
+SECUREPREDICT V0.4 - AI4I XGBOOST HYPERPARAMETER TUNING
+==========================================================================================
+Training split only.
+Validation and test sets were not used during tuning.
+
+Training rows: 6,400
+Positive failures: 217
+Negative normal rows: 6,183
+scale_pos_weight: 28.493088
+CV folds: 4
+Randomized search iterations: 30
+Selection metric: Average Precision (PR-AUC)
+Elapsed time (minutes): 0.34
+Best mean CV PR-AUC: 0.776140
+
+Best parameters:
+  model__subsample: 1.0
+  model__reg_lambda: 1.0
+  model__reg_alpha: 0.5
+  model__n_estimators: 300
+  model__min_child_weight: 4
+  model__max_depth: 8
+  model__learning_rate: 0.08
+  model__gamma: 0.5
+  model__colsample_bytree: 0.9
+
+Saved model: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\models\tuned\ai4i_xgboost_tuned.joblib
+Full CV results: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\reports\v0_1\tables\10_ai4i_xgboost_tuning_results.csv
+Top-10 results: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\reports\v0_1\tables\10_ai4i_xgboost_top10.csv
+Metadata: C:\Users\triam\Downloads\SecurePredict_v0_1\SecurePredict_v0_1\reports\v0_1\tables\10_ai4i_xgboost_tuning_metadata.json
+
+NEXT STEP:
+Evaluate the tuned estimator on the reserved validation split,
+then optimize the operating probability threshold before final
+untouched test-set evaluation.

@@ -1,0 +1,5 @@
+,Air temperature,Air temperature,Air temperature,Process temperature,Process temperature,Process temperature,Rotational speed,Rotational speed,Rotational speed,Torque,Torque,Torque,Tool wear,Tool wear,Tool wear
+,mean,median,std,mean,median,std,mean,median,std,mean,median,std,mean,median,std
+Machine failure,,,,,,,,,,,,,,,
+0,299.968,300.0,1.984,309.9904,310.0,1.4789,1540.6932,1506.0,167.8952,39.6297,39.7,9.5174,106.2009,105.0,63.0475
+1,301.1083,301.8,2.0556,310.4175,310.5,1.3887,1493.1475,1365.0,376.738,50.3636,53.0,16.1699,136.6175,155.0,76.1023

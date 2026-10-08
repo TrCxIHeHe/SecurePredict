@@ -1,0 +1,3 @@
+feature,dtype,n_unique,unique_ratio,missing_count,missing_pct,most_common_value,most_common_count,dominant_pct
+proto,object,3,3.811362943388556e-05,0,0.0,tcp,70666,89.7779245858319
+service,object,10,0.0001270454314462852,0,0.0,-,65847,83.6556052444354
