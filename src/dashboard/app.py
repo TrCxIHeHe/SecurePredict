@@ -13,6 +13,7 @@ import sys
 
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 # Make project-root imports work when this file is launched from the repository root.
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -32,6 +33,11 @@ from src.inference import (  # noqa: E402
     predict_ai4i,
     predict_rt_iot2022,
 )
+
+from src.dashboard.twin import build_twin_html  # noqa: E402
+from src.inference.fusion import severity  # noqa: E402
+from src.twin.simulator import NORMAL_CLASSES, SCENARIOS  # noqa: E402
+from src.twin.timeline import TICK_MINUTES, build_timeline  # noqa: E402
 
 
 st.set_page_config(
@@ -162,6 +168,12 @@ def render_overview():
     )
 
 
+MH_DEFAULTS = {
+    "mh_type": "L", "mh_air": 298.2, "mh_proc": 308.5,
+    "mh_rpm": 1500.0, "mh_tq": 42.0, "mh_wear": 120.0,
+}
+
+
 def render_machine_health():
     st.header("Machine Health")
     st.write(
@@ -169,36 +181,38 @@ def render_machine_health():
         "return a failure probability and two operating decisions."
     )
 
+    prefill = st.session_state.pop("_prefill_mh", None)
+    if prefill:
+        st.session_state.update(prefill)
+        st.info("Loaded from the digital twin: " + prefill.get("_source", "selected reading"))
+    for key, default in MH_DEFAULTS.items():
+        st.session_state.setdefault(key, default)
+    autorun = st.session_state.pop("_autorun_mh", False)
+
     with st.form("ai4i_form"):
         left, right = st.columns(2)
 
         with left:
-            machine_type = st.selectbox("Machine Type", ["L", "M", "H"])
+            machine_type = st.selectbox("Machine Type", ["L", "M", "H"], key="mh_type")
             air_temp = st.number_input(
-                "Air Temperature (K)", min_value=270.0, max_value=330.0, value=298.2
+                "Air Temperature (K)", min_value=270.0, max_value=330.0, key="mh_air"
             )
             process_temp = st.number_input(
-                "Process Temperature (K)",
-                min_value=280.0,
-                max_value=340.0,
-                value=308.5,
+                "Process Temperature (K)", min_value=280.0, max_value=340.0, key="mh_proc"
             )
 
         with right:
             rotational_speed = st.number_input(
-                "Rotational Speed (rpm)",
-                min_value=500.0,
-                max_value=3000.0,
-                value=1500.0,
+                "Rotational Speed (rpm)", min_value=500.0, max_value=3000.0, key="mh_rpm"
             )
             torque = st.number_input(
-                "Torque (Nm)", min_value=0.0, max_value=100.0, value=42.0
+                "Torque (Nm)", min_value=0.0, max_value=100.0, key="mh_tq"
             )
             tool_wear = st.number_input(
-                "Tool Wear (min)", min_value=0.0, max_value=300.0, value=120.0
+                "Tool Wear (min)", min_value=0.0, max_value=300.0, key="mh_wear"
             )
 
-        submitted = st.form_submit_button("Predict Machine Health", type="primary")
+        submitted = st.form_submit_button("Predict Machine Health", type="primary") or autorun
 
     if not submitted:
         st.info(
@@ -276,11 +290,13 @@ def render_network_security():
 
     schema = model_schemas()["rt_iot2022"]
 
-    option = st.radio(
-        "Input mode",
-        ["Synthetic interface sample", "Upload one-row CSV"],
-        horizontal=True,
-    )
+    modes = ["Synthetic interface sample", "Upload one-row CSV"]
+    twin_flow = st.session_state.get("twin_flow")
+    if twin_flow is not None:
+        modes.append("Flow from digital twin")
+    if st.session_state.pop("_select_twin_flow", False):
+        st.session_state["ns_mode"] = "Flow from digital twin"
+    option = st.radio("Input mode", modes, horizontal=True, key="ns_mode")
 
     row_df = None
 
@@ -292,7 +308,7 @@ def render_network_security():
         if st.button("Run synthetic network-flow demo", type="primary"):
             row_df = pd.DataFrame([{feature: 0.0 for feature in schema}])
 
-    else:
+    elif option == "Upload one-row CSV":
         uploaded = st.file_uploader(
             "Upload one CSV row with the 78 numeric features",
             type=["csv"],
@@ -320,6 +336,10 @@ def render_network_security():
                     row_df = candidate[schema].copy()
             except Exception as exc:
                 st.error(f"Could not read the uploaded CSV: {exc}")
+
+    if option == "Flow from digital twin" and twin_flow is not None:
+        st.success("Scoring the exact flow selected in the digital twin: " + st.session_state.get("twin_flow_source", ""))
+        row_df = twin_flow[schema].copy()
 
     if row_df is None:
         st.caption(f"Expected feature count: {len(schema)} numeric features.")
@@ -359,6 +379,147 @@ def render_network_security():
         )
     except Exception as exc:
         st.warning(f"Could not compute explanation: {exc}")
+
+
+FLOWS_FILE = TABLE_DIR / "demo_sample_flows.csv"
+LEVEL_ICON = {"OK": "OK", "WARNING": "WARNING", "NETWORK ALERT": "NETWORK ALERT", "ALARM": "ALARM", "CRITICAL": "CRITICAL"}
+
+
+@st.cache_data(show_spinner="Simulating the shift and scoring every reading and flow with the frozen models ...")
+def _run_twin(params: dict, pool):
+    return build_timeline(params, pool)
+
+
+def _goto(page: str) -> None:
+    st.session_state["_goto"] = page
+    st.rerun()
+
+
+@st.fragment
+def _twin_inspector(payload: dict, flows, tel) -> None:
+    """Pick a machine + moment, see the models' view of it, and jump to the detailed pages."""
+    st.subheader("Inspect a moment and open it in the detailed pages")
+    n_ticks, names = len(payload["frames"]), payload["machines"]
+    c1, c2 = st.columns([1, 3])
+    mi = c1.selectbox("Machine", range(len(names)), format_func=lambda i: names[i],
+                      index=int(payload["window"]["target"]))
+    worst = max(range(n_ticks), key=lambda t: (severity(payload["frames"][t][mi]["fu"]), payload["frames"][t][mi]["p"]))
+    tick = c2.slider("Moment (tick)", 0, n_ticks - 1, worst, key=f"twin_tick_{mi}",
+                     help=f"Default = the most severe moment for this machine. 1 tick = {TICK_MINUTES} simulated minutes.")
+    f = payload["frames"][tick][mi]
+    row = tel.iloc[tick * len(names) + mi]
+    sample = {k: (row[k] if k == "Type" else float(row[k])) for k in AI4I_FEATURES}
+
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Fused status", f["fu"])
+    m2.metric("Failure probability", f"{f['p'] * 100:.2f}%", f["st"].title(), delta_color="off")
+    if "np" in f:
+        m3.metric("Flow attack probability", f"{f['np'] * 100:.1f}%", "flagged" if f["nf"] else "not flagged", delta_color="off")
+        m4.metric("Simulated flow source", f["nt"])
+    st.caption(f["wy"])
+
+    b1, b2, _ = st.columns([1, 1, 2])
+    if b1.button("Open in Machine Health", type="primary", key="to_mh"):
+        st.session_state["_prefill_mh"] = {
+            "mh_type": sample["Type"], "mh_air": sample["Air temperature"], "mh_proc": sample["Process temperature"],
+            "mh_rpm": sample["Rotational speed"], "mh_tq": sample["Torque"], "mh_wear": sample["Tool wear"],
+            "_source": f"{names[mi]} at tick {tick}",
+        }
+        st.session_state["_autorun_mh"] = True
+        _goto("Machine Health")
+    if flows is not None and b2.button("Open flow in Network Security", key="to_ns"):
+        schema = model_schemas()["rt_iot2022"]
+        st.session_state["twin_flow"] = flows.iloc[[tick * len(names) + mi]][schema].reset_index(drop=True)
+        st.session_state["twin_flow_source"] = f"{names[mi]} at tick {tick} (simulated source: {f['nt']})"
+        st.session_state["_select_twin_flow"] = True
+        _goto("Network Security")
+
+    render_input_explanation(explain_ai4i(sample), f"Why {names[mi]} has this failure probability at tick {tick}")
+
+
+def render_digital_twin():
+    st.header("Digital Twin - Control Room")
+    st.caption(
+        "A simulated six-machine cell. Every colour, probability, SHAP bar and alert is computed live by the "
+        "frozen XGBoost (machines) and Random Forest (network) models, then fused per asset. Only the "
+        "telemetry physics and which flows are injected are simulation inputs. Network flows are real "
+        "RT-IoT2022 benchmark flows; the flow-to-machine mapping is simulated (the two datasets share no asset id)."
+    )
+
+    pool = pd.read_csv(FLOWS_FILE) if FLOWS_FILE.exists() else None
+    families = sorted(set(pool["Attack_type"]) - NORMAL_CLASSES) if pool is not None else []
+    scenarios = [k for k, v in SCENARIOS.items() if pool is not None or not v["cyber"]]
+    if pool is None:
+        st.info("Network feed not loaded: run `python src/data/export_demo_flows.py` once to enable the cyber "
+                "scenarios and the network layer. Machine-health scenarios work without it.")
+
+    default = {"scenario": "Cyber-physical attack" if pool is not None else "Overload event", "target": 2,
+               "n_ticks": 120, "seed": 7, "start": 40, "duration": 40,
+               "family": "ARP_poisioning" if "ARP_poisioning" in families else (families[0] if families else None),
+               "intensity": 0.8}
+    params = st.session_state.setdefault("twin_params", default)
+    if params["scenario"] not in scenarios:
+        params = default
+
+    with st.form("twin_form"):
+        c1, c2, c3, c4 = st.columns(4)
+        scenario = c1.selectbox("Scenario", scenarios, index=scenarios.index(params["scenario"]))
+        target = c2.selectbox("Target machine", range(6), index=params["target"], format_func=lambda i: f"CNC-{i + 1}")
+        start = c3.slider("Event starts at tick", 10, 100, params["start"])
+        duration = c4.slider("Event duration (ticks)", 10, 60, params["duration"])
+        d1, d2, d3, d4 = st.columns(4)
+        n_ticks = d1.slider("Shift length (ticks)", 60, 180, params["n_ticks"], step=10)
+        seed = d2.number_input("Random seed", 0, 9999, params["seed"])
+        family = d3.selectbox("Attack family", families or ["(feed not loaded)"],
+                              index=families.index(params["family"]) if params["family"] in families else 0,
+                              disabled=not families)
+        intensity = d4.slider("Attack intensity", 0.2, 1.0, float(params["intensity"]), step=0.1)
+        if st.form_submit_button("Run simulation", type="primary"):
+            params = {"scenario": scenario, "target": int(target), "n_ticks": int(n_ticks), "seed": int(seed),
+                      "start": int(start), "duration": int(duration), "family": family if families else None,
+                      "intensity": float(intensity)}
+            st.session_state["twin_params"] = params
+    params = dict(params, start=min(params["start"], params["n_ticks"] - 10))
+
+    try:
+        payload, flows, tel = _run_twin(params, pool)
+    except Exception as exc:
+        st.error(f"Simulation failed: {exc}")
+        return
+
+    components.html(build_twin_html(payload, height=780), height=790)
+    st.caption("Drag to rotate, wheel to zoom, click a machine or a heatmap cell to focus. Space = play/pause, arrows = step.")
+
+    k = payload["kpis"]
+    st.subheader("What the models did in this run")
+    cols = st.columns(5)
+    cols[0].metric("Peak failure probability", f"{k['peak_failure_probability'] * 100:.1f}%")
+    if "fault_lead_time_ticks" in k:
+        lead = k["fault_lead_time_ticks"]
+        cols[1].metric("Model reaction to physical fault", "none" if lead is None else f"{lead * TICK_MINUTES} min after onset")
+    if "attack_flows" in k:
+        a, t_ = k["attack_flows_flagged"], k["attack_flows"]
+        cols[2].metric("Attack flows flagged", f"{a}/{t_}" if t_ else "n/a (no attack injected)")
+        cols[3].metric("False alarms (benign flows)", f"{k['benign_flows_flagged']}/{k['benign_flows']}")
+        if "detection_delay_ticks" in k:
+            d = k["detection_delay_ticks"]
+            cols[4].metric("Confirmed network alert", "never" if d is None else f"{d * TICK_MINUTES} min after start")
+        else:
+            cols[4].metric("CRITICAL machine-ticks", k["critical_ticks"])
+    if params["scenario"].startswith("Cooling") and k.get("fault_lead_time_ticks") is None:
+        st.warning("Blind spot: the model did not react to this cooling fault. The AI4I model uses raw features only, "
+                   "so it cannot see temperature-gap effects. This is a documented limitation, not a UI bug.")
+
+    ev = pd.DataFrame(payload["events"])
+    if len(ev):
+        ev["time"] = ev["t"].map(lambda t: f"T+{t * TICK_MINUTES // 60:02d}:{t * TICK_MINUTES % 60:02d}")
+        ev["machine"] = ev["m"].map(lambda m: payload["machines"][m])
+        log = ev[["time", "machine", "lvl", "text"]].rename(columns={"lvl": "level"})
+        with st.expander(f"Incident log ({len(log)} events)", expanded=False):
+            st.dataframe(log, hide_index=True, width="stretch")
+            st.download_button("Download incident log (CSV)", log.to_csv(index=False), "securepredict_incidents.csv", "text/csv")
+
+    _twin_inspector(payload, flows, tel)
 
 
 def render_explainability():
@@ -439,6 +600,30 @@ def render_model_performance():
                 st.metric(metric, f"{metrics[metric]:.6f}")
             st.caption(f"Untouched test rows: {metrics['Test rows']:,}")
 
+
+    st.subheader("Generalization stress test (V1.1)")
+    ood_path = TABLE_DIR / "18_rt_iot2022_ood_results.csv"
+    if ood_path.exists():
+        ood_df = pd.read_csv(ood_path)[
+            ["family", "unseen_rows", "ood_recall_rows", "seen_recall_rows", "recall_drop_vs_seen", "ood_fpr_normal"]
+        ].rename(
+            columns={
+                "family": "Attack family held out of training",
+                "unseen_rows": "Unseen rows",
+                "ood_recall_rows": "Detected when UNSEEN",
+                "seen_recall_rows": "Detected when SEEN",
+                "recall_drop_vs_seen": "Drop",
+                "ood_fpr_normal": "False-alarm rate (normal)",
+            }
+        )
+        st.dataframe(ood_df, hide_index=True, width="stretch")
+        st.caption(
+            "A fresh model is trained with the whole family removed, then asked to flag it. "
+            "Benchmark scores above are in-distribution; this table is the harder test."
+        )
+    else:
+        st.info("Run `python src/data/rt_iot_ood_study.py` to generate the OOD results.")
+
     st.subheader("AI4I operating thresholds")
     threshold_df = pd.DataFrame(
         [
@@ -501,14 +686,19 @@ def main():
     initialize_models()
     render_header()
 
+    if "_goto" in st.session_state:
+        st.session_state["page"] = st.session_state.pop("_goto")
+
     with st.sidebar:
         st.markdown("## SecurePredict")
         page = st.radio(
             "Navigate",
-            [
+            key="page",
+            options=[
                 "Overview",
                 "Machine Health",
                 "Network Security",
+                "Digital Twin",
                 "Explainability",
                 "Model Performance",
                 "About",
@@ -526,6 +716,8 @@ def main():
         render_machine_health()
     elif page == "Network Security":
         render_network_security()
+    elif page == "Digital Twin":
+        render_digital_twin()
     elif page == "Explainability":
         render_explainability()
     elif page == "Model Performance":

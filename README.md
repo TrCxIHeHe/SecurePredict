@@ -126,6 +126,8 @@ Pages:
 - About
 
 ### V0.9 — Automated tests
+Initial inference tests: 10 passed.
+
 ### V1.0 - Hardening
 - Inference rejects NaN, Inf, invalid `Type`, non-numeric and out-of-range values.
 - Dashboard explains the user's own input with SHAP (not just static examples).
@@ -133,10 +135,27 @@ Pages:
 - AI4I bootstrap confidence intervals (`16_ai4i_uncertainty.txt`) and RT-IoT2022 per-attack-type breakdown (`17_*`).
 - GitHub Actions CI, provenance document, stale V0.1 shell removed.
 
+### V1.1 - Generalization (OOD) study
+`src/data/rt_iot_ood_study.py` trains a fresh model with an entire attack family removed
+(ARP poisoning, NMAP scans, Slowloris, Metasploit SSH, SYN flood) and measures how many of those
+unseen attacks it still flags. The frozen V0.5 benchmark is untouched. Results: `reports/v0_1/18_*`.
+
+### V1.2 - Control-room digital twin
+The Digital Twin page is a 3D simulation control room (three.js). A seeded simulator generates machine
+telemetry and a network-flow stream (real RT-IoT2022 benchmark flows assigned to machines); the frozen
+XGBoost and Random Forest models score every reading and every flow, SHAP explains them, and a fusion rule
+combines the two verdicts per asset (a degraded machine under a network attack becomes CRITICAL).
+Nothing shown is hard-coded: statuses, probabilities, alerts and KPIs are all model outputs. Telemetry physics and
+the flow-to-machine mapping are simulation inputs, and the page says so. Any moment can be opened in the Machine
+Health or Network Security page with the exact reading or flow. `src/data/ai4i_failure_mode_recall.py`
+reports recall per AI4I failure mode (the twin's cooling-fault probe suggests heat-dissipation failures are a blind spot).
+
+Setup: `python src/data/export_demo_flows.py` once (needs `data/processed`), then run the app.
+
 Current test suite (inference, validation, explanations, dashboard smoke test):
 
 ```text
-33+ passed
+59 passed
 ```
 
 ---
@@ -148,12 +167,13 @@ SecurePredict/
 ├── .github/workflows/ci.yml        # pytest on every push / PR, docker build
 ├── src/
 │   ├── data/                       # one script per experiment stage (V0.1-V1.0.4)
-│   ├── inference/
+│   ├── twin/                       # simulator + timeline builder (model-scored)
+│   ├── inference/                  # + batch inference, fusion
 │   │   ├── predictors.py           # predict_* / explain_*
 │   │   ├── validation.py           # NaN / Inf / type / range checks
 │   │   └── explain.py              # per-input SHAP
 │   └── dashboard/app.py            # Streamlit app
-├── tests/                          # inference, validation, explain, dashboard
+├── tests/                          # inference, validation, explain, dashboard, twin, OOD logic
 ├── models/{final,tuned,baseline,ablation,xgboost_baseline}/
 ├── reports/v0_1/{tables,figures}/  # numbered reports 02-17
 ├── EXPERIMENT_PROVENANCE.md        # artifact-level audit trail

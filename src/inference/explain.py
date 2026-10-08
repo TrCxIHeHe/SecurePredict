@@ -72,3 +72,25 @@ def explain_row(kind: str, row: pd.DataFrame, top_k: int = 8) -> dict[str, Any]:
         "base_value": base_value,
         "contributions": contributions,
     }
+
+
+def _shap_matrix(kind: str, frame: pd.DataFrame):
+    explainer, pipeline = _explainer(kind)
+    X, names = _transform(pipeline, frame)
+    values = explainer.shap_values(X)
+    if isinstance(values, list):
+        values = values[1]
+    values = np.asarray(values)
+    if values.ndim == 3:
+        values = values[:, :, 1]
+    return values, names
+
+
+def explain_batch(kind: str, frame: pd.DataFrame, top_k: int = 3) -> list[list[list]]:
+    """For each row: top_k [feature, shap] pairs ordered by |shap|."""
+    values, names = _shap_matrix(kind, frame)
+    out = []
+    for row in values:
+        idx = np.argsort(-np.abs(row))[:top_k]
+        out.append([[names[i], float(row[i])] for i in idx])
+    return out

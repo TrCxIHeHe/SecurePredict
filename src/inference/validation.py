@@ -68,3 +68,44 @@ def validate_rt_iot_row(row: pd.DataFrame) -> None:
             raise ValueError(
                 f"RT-IoT2022: '{name}'={value} exceeds the sane magnitude limit {RT_ABS_LIMIT:g}"
             )
+
+
+# ---------------------------------------------------------------------------
+# Vectorised variants for batch inference (same rules, whole frame at once).
+# ---------------------------------------------------------------------------
+import numpy as np  # noqa: E402
+
+
+def _numeric_block(frame: pd.DataFrame, cols: list[str], system: str) -> np.ndarray:
+    for c in cols:
+        if frame[c].dtype == bool or not pd.api.types.is_numeric_dtype(frame[c]):
+            raise ValueError(f"{system}: column '{c}' must be numeric")
+    arr = frame[cols].to_numpy(dtype=float)
+    bad = ~np.isfinite(arr)
+    if bad.any():
+        r, c = np.argwhere(bad)[0]
+        raise ValueError(f"{system}: row {r}: '{cols[c]}' is NaN or infinite")
+    return arr
+
+
+def validate_ai4i_frame(frame: pd.DataFrame) -> None:
+    bad_type = ~frame["Type"].isin(AI4I_TYPES)
+    if bad_type.any():
+        i = int(np.argmax(bad_type.to_numpy()))
+        raise ValueError(f"AI4I: row {i}: 'Type' must be one of {list(AI4I_TYPES)}, got {frame['Type'].iloc[i]!r}")
+    cols = list(AI4I_BOUNDS)
+    arr = _numeric_block(frame, cols, "AI4I")
+    for j, name in enumerate(cols):
+        lo, hi = AI4I_BOUNDS[name]
+        out = (arr[:, j] < lo) | (arr[:, j] > hi)
+        if out.any():
+            i = int(np.argmax(out))
+            raise ValueError(f"AI4I: row {i}: '{name}'={arr[i, j]} is outside the accepted range [{lo}, {hi}]")
+
+
+def validate_rt_iot_frame(frame: pd.DataFrame) -> None:
+    arr = _numeric_block(frame, list(frame.columns), "RT-IoT2022")
+    big = np.abs(arr) > RT_ABS_LIMIT
+    if big.any():
+        r, c = np.argwhere(big)[0]
+        raise ValueError(f"RT-IoT2022: row {r}: '{frame.columns[c]}' exceeds the sane magnitude limit {RT_ABS_LIMIT:g}")

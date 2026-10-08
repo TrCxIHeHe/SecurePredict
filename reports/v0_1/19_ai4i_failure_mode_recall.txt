@@ -1,0 +1,16 @@
+SECUREPREDICT V1.2 - AI4I RECALL BY FAILURE MODE (FROZEN MODEL, TEST SPLIT)
+====================================================================================================
+mode                  meaning     operating_mode  test_failures  detected  recall  ci_low  ci_high
+ TWF        tool wear failure       primary_0.77             10         1   0.100   0.018    0.404
+ TWF        tool wear failure early_warning_0.07             10         7   0.700   0.397    0.892
+ HDF heat dissipation failure       primary_0.77             29        26   0.897   0.736    0.964
+ HDF heat dissipation failure early_warning_0.07             29        28   0.966   0.828    0.994
+ PWF            power failure       primary_0.77             13        12   0.923   0.667    0.986
+ PWF            power failure early_warning_0.07             13        13   1.000   0.772    1.000
+ OSF       overstrain failure       primary_0.77             16        15   0.938   0.717    0.989
+ OSF       overstrain failure early_warning_0.07             16        16   1.000   0.806    1.000
+ RNF           random failure       primary_0.77              4         1   0.250   0.046    0.699
+ RNF           random failure early_warning_0.07              4         2   0.500   0.150    0.850
+
+A failure can carry more than one mode label. Small counts give wide intervals.
+Modes are used ONLY for this analysis, never as model inputs.

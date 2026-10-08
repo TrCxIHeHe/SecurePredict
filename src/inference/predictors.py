@@ -14,7 +14,12 @@ from typing import Any
 import joblib
 import pandas as pd
 
-from .validation import validate_ai4i_row, validate_rt_iot_row
+from .validation import (
+    validate_ai4i_frame,
+    validate_ai4i_row,
+    validate_rt_iot_frame,
+    validate_rt_iot_row,
+)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -207,3 +212,54 @@ def explain_rt_iot2022(data: dict[str, Any] | pd.DataFrame, top_k: int = 8) -> d
     from .explain import explain_row
 
     return explain_row("rt_iot2022", _validated_rt_row(data), top_k)
+
+
+def _batch_frame(data: pd.DataFrame, expected: list[str], system: str) -> pd.DataFrame:
+    if not isinstance(data, pd.DataFrame):
+        raise TypeError("Batch inference expects a pandas DataFrame.")
+    if len(data) == 0:
+        raise ValueError(f"{system}: empty batch")
+    return _validate_columns(data.reset_index(drop=True), expected, system)
+
+
+def predict_ai4i_batch(data: pd.DataFrame) -> pd.DataFrame:
+    """Vectorised predict_ai4i: same validation, same thresholds, one row per input row."""
+    ai4i_model, _ = load_models()
+    frame = _batch_frame(data, _model_feature_names(ai4i_model), "AI4I")
+    validate_ai4i_frame(frame)
+    p = ai4i_model.predict_proba(frame)[:, 1]
+    return pd.DataFrame(
+        {
+            "failure_probability": p,
+            "primary_failure": p >= AI4I_PRIMARY_THRESHOLD,
+            "early_warning": p >= AI4I_EARLY_WARNING_THRESHOLD,
+        }
+    )
+
+
+def predict_rt_iot2022_batch(data: pd.DataFrame) -> pd.DataFrame:
+    """Vectorised predict_rt_iot2022."""
+    _, rt_model = load_models()
+    frame = _batch_frame(data, _model_feature_names(rt_model), "RT-IoT2022")
+    validate_rt_iot_frame(frame)
+    p = rt_model.predict_proba(frame)[:, 1]
+    return pd.DataFrame({"attack_probability": p, "attack": p >= 0.50})
+
+
+def explain_ai4i_batch(data: pd.DataFrame, top_k: int = 3) -> list[list[list]]:
+    """Top-k SHAP contributions (log-odds) for every row: [[feature, value], ...] per row."""
+    from .explain import explain_batch
+
+    ai4i_model, _ = load_models()
+    frame = _batch_frame(data, _model_feature_names(ai4i_model), "AI4I")
+    validate_ai4i_frame(frame)
+    return explain_batch("ai4i", frame, top_k)
+
+
+def explain_rt_iot2022_batch(data: pd.DataFrame, top_k: int = 3) -> list[list[list]]:
+    from .explain import explain_batch
+
+    _, rt_model = load_models()
+    frame = _batch_frame(data, _model_feature_names(rt_model), "RT-IoT2022")
+    validate_rt_iot_frame(frame)
+    return explain_batch("rt_iot2022", frame, top_k)
